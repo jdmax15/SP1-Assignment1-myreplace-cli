@@ -1,0 +1,61 @@
+||================================||
+|| Assignment 1 - Week 7 Tutorial ||
+||================================||
+
+Need to save the pairs of args in a datastructure
+
+Example Input:
+./filename file.txt a A b BB The a
+
+struct Pair {
+	* from		(string)
+	* to		(string)
+	int replace	(counter of replacements)
+}
+
+Pair P1
+____________________________________________________
+*from 	= a 	| *from 	= b		| *from = The 	|
+*to 	= A		| *to 	= BB		| *to 	= a 	|
+int replace		| int replace		| int replace	|
+---------------------------------------------------
+
+
+
+Need to use a temp buffer. DO NOT use a temp .txt file.
+
+File.txt -> open() -> read() --read into buffer() ->> Buff Size 1000 -> write() (from buffer)
+
+
+Test Case:
+
+Test No	|	Test Description 		 	 |	Command |	Expected Output				 |		Actual Output
+		|								 |			|								 |
+	1	|	./myreplace					 |			|atleast 4 arguments req		 |
+		|						 	     |			|								 |
+	2	|	./myreplace a A				 |			|enter filename then args		 |
+		|								 |			|								 |
+	3	|	./myreplace f.txt -f a A     |			|"-f" goes after program name	 |
+
+
+
+||============||
+||Test Cases: ||
+||============||
+
+1. Single Replacement
+
+./myreplace File.txt a A
+*screenshot of output*
+
+
+2. Multiple Pair Replacement
+
+./myreplace File.txt a A b BB
+*screenshot of output*
+
+
+3. Word replacement
+
+./myreplace File.txt a A b BB The a
+*screenshot of output*
