@@ -1,6 +1,3 @@
-
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -19,8 +16,6 @@ struct Pair {
     char *to;
     int replace;
 };
-
-
 
 
 int main (int argc, char *argv[]) {
@@ -45,7 +40,7 @@ int main (int argc, char *argv[]) {
 
 	int fArgUsed = 0;
 	char fArg[] = "-f";
-	if ((strcmp(argv[2], fArg)) == 0) {
+	if ((strcmp(argv[1], fArg)) == 0) {
 		printf("-f arg used.\n");
 		fArgUsed = 1;
 	} else {
@@ -55,10 +50,10 @@ int main (int argc, char *argv[]) {
 	char *file;
 	
 	if (fArgUsed) {
-		file = argv[1];
+		file = argv[2];
 		pairStart = 3;
 	} else {
-		file = argv[2];
+		file = argv[1];
 		pairStart = 2;
 	}
 
@@ -77,33 +72,42 @@ int main (int argc, char *argv[]) {
 		printf("Pair[%d].replace = %d\n", i, pairs[i].replace);
 	}
 
-	// int fd;
-	// ssize_t nread;
-	// char buffer[BUFFERSIZE];
+	int fd;
+	ssize_t nread;
+	char buffer[BUFFERSIZE];
 
-	// fd = open(file, O_RDWR);
-	// if (fd == -1) {
-	// 	printf("Error: Could not open %s\n", file);
-	// }
-	// printf("file descriptor is %d\n\n", fd);
-
-
-
-	// while ((nread = read(fd, buffer, BUFFERSIZE)) > 0) {
-	// 	for (int i = 0; i < nread; i++) {
-	// 		if (buffer[i] == *from) {
-	// 			buffer[i] = *to;
-	// 		}
-	// 	}
-	// 	lseek(fd, -nread, SEEK_CUR);
-	// 	write(fd, buffer, nread);
-	// 	write(1, buffer, nread);
-	// }
+	fd = open(file, O_RDWR);
+	if (fd == -1) {
+		printf("Error: Could not open %s\n", file);
+	}
+	printf("file descriptor is %d\n\n", fd);
 
 
-	// close(fd);
 
+	while ((nread = read(fd, buffer, BUFFERSIZE)) > 0) {
+		for (int i = 0; i < nread; i++) {
+			for (int j = 0; j < pairCount; j++) {
+				if (strncmp(buffer + i, pairs[j].from, strlen(pairs[j].from)) == 0) {
+					if (fArgUsed && pairs[j].replace == 1) {
+						break;
+					} else {
+						memcpy(buffer + i, pairs[j].to, strlen(pairs[j].to));
+						pairs[j].replace = 1;
+						i += strlen(pairs[j].from) - 1;
+						break;
+					}
+				}
+			}
+		}
 	
+		
+		lseek(fd, -nread, SEEK_CUR);
+		write(fd, buffer, nread);
+		write(1, buffer, nread);
+	}
+	
+	close(fd);
+
 
 	return 0;
 }
