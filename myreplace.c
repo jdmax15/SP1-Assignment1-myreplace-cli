@@ -12,6 +12,16 @@
 
 #define COPYMODE	0644
 #define BUFFERSIZE	1024
+#define MAX_PAIRS	50
+
+struct Pair {
+    char *from;
+    char *to;
+    int replace;
+};
+
+
+
 
 int main (int argc, char *argv[]) {
 
@@ -25,14 +35,17 @@ int main (int argc, char *argv[]) {
 			printf("argv[%d]: %s \n", i, argv[i]);
 		}
 		printf("\n");
+		printf("argc: %d\n", argc);
 	}
 
-	char *to;
-	char *from;
+
+	struct Pair pairs[MAX_PAIRS];
+	int pairCount = 0;
+	int pairStart;
 
 	int fArgUsed = 0;
 	char fArg[] = "-f";
-	if ((strcmp(argv[1], fArg)) == 0) {
+	if ((strcmp(argv[2], fArg)) == 0) {
 		printf("-f arg used.\n");
 		fArgUsed = 1;
 	} else {
@@ -42,43 +55,53 @@ int main (int argc, char *argv[]) {
 	char *file;
 	
 	if (fArgUsed) {
-		file = argv[2];
-		from = argv[3];
-		to = argv[4];
-	} else {
 		file = argv[1];
-		from = argv[2];
-		to = argv[3];
+		pairStart = 3;
+	} else {
+		file = argv[2];
+		pairStart = 2;
 	}
 
-	printf("from = %c\n", *from);
-	printf("to = %c\n", *to);
-
-	int fd;
-	ssize_t nread;
-	char buffer[BUFFERSIZE];
-
-	fd=open(file, O_RDWR);
-	if (fd == -1) {
-		printf("Error: Could not open %s\n", file);
+	for (int i = pairStart; i < argc; i += 2) {
+		pairs[pairCount].from = argv[i];
+		pairs[pairCount].to	= argv[i+1];
+		pairs[pairCount].replace = 0;
+		pairCount++;
 	}
-	printf("file descriptor is %d\n\n", fd);
+	
+	printf("Printing Pairs: \n");
 
-
-
-	while ((nread = read(fd, buffer, BUFFERSIZE)) > 0) {
-		for (int i = 0; i < nread; i++) {
-			if (buffer[i] == *from) {
-				buffer[i] = *to;
-			}
-		}
-		lseek(fd, -nread, SEEK_CUR);
-		write(fd, buffer, nread);
-		write(1, buffer, nread);
+	for (int i = 0; i < pairCount; i++) {
+		printf("Pair[%d].from = %s\n", i, pairs[i].from);
+		printf("Pair[%d].to = %s\n", i, pairs[i].to);
+		printf("Pair[%d].replace = %d\n", i, pairs[i].replace);
 	}
 
+	// int fd;
+	// ssize_t nread;
+	// char buffer[BUFFERSIZE];
 
-	close(fd);
+	// fd = open(file, O_RDWR);
+	// if (fd == -1) {
+	// 	printf("Error: Could not open %s\n", file);
+	// }
+	// printf("file descriptor is %d\n\n", fd);
+
+
+
+	// while ((nread = read(fd, buffer, BUFFERSIZE)) > 0) {
+	// 	for (int i = 0; i < nread; i++) {
+	// 		if (buffer[i] == *from) {
+	// 			buffer[i] = *to;
+	// 		}
+	// 	}
+	// 	lseek(fd, -nread, SEEK_CUR);
+	// 	write(fd, buffer, nread);
+	// 	write(1, buffer, nread);
+	// }
+
+
+	// close(fd);
 
 	
 
