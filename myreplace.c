@@ -1,13 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string.h>
 
-#define COPYMODE	0644
 #define BUFFERSIZE	1024
 #define MAX_PAIRS	50
 
@@ -41,10 +39,10 @@ int main (int argc, char *argv[]) {
 	int fArgUsed = 0;
 	char fArg[] = "-f";
 	if ((strcmp(argv[1], fArg)) == 0) {
-		printf("-f arg used.\n");
+		printf("-f arg used.\n\n");
 		fArgUsed = 1;
 	} else {
-		printf("-f arg NOT used.\n");
+		printf("-f arg NOT used.\n\n");
 	}
 
 	char *file;
@@ -56,6 +54,12 @@ int main (int argc, char *argv[]) {
 		file = argv[1];
 		pairStart = 2;
 	}
+
+	if ((fArgUsed && (argc % 2 != 1)) || (!fArgUsed && (argc % 2 != 0))) {
+		printf("\nERROR: Enter \"from\" and \"to\" as pairs. Odd number detected.\n");
+		exit(1);
+	}
+
 
 	for (int i = pairStart; i < argc; i += 2) {
 		pairs[pairCount].from = argv[i];
@@ -78,7 +82,8 @@ int main (int argc, char *argv[]) {
 
 	fd = open(file, O_RDWR);
 	if (fd == -1) {
-		printf("Error: Could not open %s\n", file);
+		printf("\nERROR: Could not open %s\n", file);
+		exit(1);
 	}
 	printf("file descriptor is %d\n\n", fd);
 
@@ -90,9 +95,11 @@ int main (int argc, char *argv[]) {
 				if (strncmp(buffer + i, pairs[j].from, strlen(pairs[j].from)) == 0) {
 					if (fArgUsed && pairs[j].replace == 1) {
 						break;
-					} else {
-						memcpy(buffer + i, pairs[j].to, strlen(pairs[j].to));
-						pairs[j].replace = 1;
+					} else {			
+						if (strcmp(pairs[j].from, pairs[j].to) != 0) {
+								memcpy(buffer + i, pairs[j].to, strlen(pairs[j].to));
+								pairs[j].replace = 1;
+						}
 						i += strlen(pairs[j].from) - 1;
 						break;
 					}
@@ -105,6 +112,25 @@ int main (int argc, char *argv[]) {
 		write(fd, buffer, nread);
 		write(1, buffer, nread);
 	}
+
+	if (nread == -1) {
+		printf("\nERROR: could not read from file.\n");
+		exit(1);
+	}
+
+	int wasModified = 0;
+	for (int i = 0; i < pairCount; i++) {
+		if (pairs[i].replace == 1) {
+			wasModified = 1;
+			break;
+		}
+	}
+	if (wasModified) {
+		printf("\nFile was modified.\n");
+	} else {
+		printf("\nFile was not modified.\n");
+	}
+
 	
 	close(fd);
 
