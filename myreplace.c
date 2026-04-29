@@ -67,7 +67,7 @@ int main (int argc, char *argv[]) {
 		pairs[pairCount].replace = 0;
 		pairCount++;
 	}
-	
+
 	printf("Printing Pairs: \n");
 
 	for (int i = 0; i < pairCount; i++) {
@@ -106,11 +106,18 @@ int main (int argc, char *argv[]) {
 				}
 			}
 		}
-	
-		
-		lseek(fd, -nread, SEEK_CUR);
-		write(fd, buffer, nread);
-		write(1, buffer, nread);
+
+		if (lseek(fd, -nread, SEEK_CUR) == -1) {
+			printf("\nERROR: lseek failure.\n");
+			exit(1);
+		}
+
+		if (write(fd, buffer, (size_t)nread) == -1) {
+			printf("\nERROR: write failure.\n");
+			exit(1);
+		}
+
+		write(1, buffer, (size_t)nread);
 	}
 
 	if (nread == -1) {
