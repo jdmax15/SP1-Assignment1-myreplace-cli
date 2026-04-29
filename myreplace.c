@@ -18,19 +18,10 @@ struct Pair {
 
 int main (int argc, char *argv[]) {
 
-	if (argc < 2) {
+	if (argc < 3) {
 		printf("Usage: \"myreplace [-f] filename from to [from to] ...\" \n");
 		return -1;
 	}
-
-	if (argc > 0) {
-		for (int i = 0; i < argc; i++) {
-			printf("argv[%d]: %s \n", i, argv[i]);
-		}
-		printf("\n");
-		printf("argc: %d\n", argc);
-	}
-
 
 	struct Pair pairs[MAX_PAIRS];
 	int pairCount = 0;
@@ -39,12 +30,9 @@ int main (int argc, char *argv[]) {
 	int fArgUsed = 0;
 	char fArg[] = "-f";
 	if ((strcmp(argv[1], fArg)) == 0) {
-		printf("-f arg used.\n\n");
 		fArgUsed = 1;
-	} else {
-		printf("-f arg NOT used.\n\n");
 	}
-
+	
 	char *file;
 	
 	if (fArgUsed) {
@@ -56,7 +44,7 @@ int main (int argc, char *argv[]) {
 	}
 
 	if ((fArgUsed && (argc % 2 != 1)) || (!fArgUsed && (argc % 2 != 0))) {
-		printf("\nERROR: Enter \"from\" and \"to\" as pairs. Odd number detected.\n");
+		printf("ERROR: Enter \"from\" and \"to\" as pairs. Odd number detected.\n");
 		exit(1);
 	}
 
@@ -68,14 +56,6 @@ int main (int argc, char *argv[]) {
 		pairCount++;
 	}
 
-	printf("Printing Pairs: \n");
-
-	for (int i = 0; i < pairCount; i++) {
-		printf("Pair[%d].from = %s\n", i, pairs[i].from);
-		printf("Pair[%d].to = %s\n", i, pairs[i].to);
-		printf("Pair[%d].replace = %d\n", i, pairs[i].replace);
-	}
-
 	int fd;
 	ssize_t nread;
 	char buffer[BUFFERSIZE];
@@ -85,9 +65,6 @@ int main (int argc, char *argv[]) {
 		printf("\nERROR: Could not open %s\n", file);
 		exit(1);
 	}
-	printf("file descriptor is %d\n\n", fd);
-
-
 
 	while ((nread = read(fd, buffer, BUFFERSIZE)) > 0) {
 		for (int i = 0; i < nread; i++) {

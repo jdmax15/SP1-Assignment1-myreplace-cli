@@ -56,8 +56,8 @@ PSEUDO-CODE
 
 		Seek back to the start of the buffer.
 		Write the modified buffer back into the file.
-	
-	Display the contents of the buffer to STDOUT.
+		Display the contents of the buffer to STDOUT.
+		
 	Repeat until end of file.
 
 - Report if changed:
@@ -81,26 +81,97 @@ Test No | Description                          | Command
 1       | No arguments                         | ./myreplace
 2       | Missing from/to pairs                | ./myreplace File.txt
 3       | Odd number of from/to args           | ./myreplace File.txt a
-4       | File does not exist                  | ./myreplace nofile.txt a A
-5       | Single pair, all occurrences         | ./myreplace File.txt [from] [to]
-6       | Multiple pairs, all occurrences      | ./myreplace File.txt [from] [to] [from] [to]
-7       | Single pair, first occurrence (-f)   | ./myreplace -f File.txt [from] [to]
-8       | Multiple pairs, first occurrence(-f) | ./myreplace -f File.txt [from] [to] [from] [to]
-9       | Identical from and to                | ./myreplace File.txt a a
-10      | Multi-char string replacement        | ./myreplace File.txt [from] [to]
+4       | File does not exist                  | ./myreplace file_.txt a A
+5       | Single pair, all occurrences         | ./myreplace File.txt jumps JUMPS
+6       | Multiple pairs, all occurrences      | ./myreplace File.txt jumps JUMPS lazy LAZY dog DOG
+7		| Same from and to					   | ./myreplace File.txt dog dog
+8       | Single pair, first occurrence (-f)   | ./myreplace -f File.txt jumps JUMPS
+9       | Multiple pairs, first occurrence(-f) | ./myreplace -f File.txt fox FOX dog DOG
+10      | Multi-char string replacement        | ./myreplace File.txt jumps RAN
 
 --------------------------------------------------------------------------------
 TEST RUN AND OUTPUT
 --------------------------------------------------------------------------------
 
-[Paste your actual test run output here, with screenshots or terminal output
-for each test case above.]
+1.
+./myreplace
+Usage: "myreplace [-f] filename from to [from to] ..." 
+
+2.
+./myreplace File.txt
+Usage: "myreplace [-f] filename from to [from to] ..." 
+
+3.
+./myreplace File.txt a
+ERROR: Enter "from" and "to" as pairs. Odd number detected.
+
+4.
+./myreplace file_.txt a A
+
+ERROR: Could not open file_.txt
+
+5.
+./myreplace File.txt jumps JUMPS
+The quick brown fox JUMPS over the lazy dog
+The quick brown fox JUMPS over the lazy dog
+The quick brown fox JUMPS over the lazy dog
+
+File was modified.
+
+6.
+./myreplace File.txt jumps JUMPS lazy LAZY dog DOG
+The quick brown fox JUMPS over the LAZY DOG
+The quick brown fox JUMPS over the LAZY DOG
+The quick brown fox JUMPS over the LAZY DOG
+
+File was modified.
+
+7.
+./myreplace File.txt jumps jumps
+The quick brown fox jumps over the lazy dog
+The quick brown fox jumps over the lazy dog
+The quick brown fox jumps over the lazy dog
+
+File was not modified.
+
+8.
+./myreplace -f File.txt jumps JUMPS
+The quick brown fox JUMPS over the lazy dog
+The quick brown fox jumps over the lazy dog
+The quick brown fox jumps over the lazy dog
+
+File was modified.
+
+9.
+./myreplace -f File.txt fox FOX dog DOG
+The quick brown FOX jumps over the lazy DOG
+The quick brown fox jumps over the lazy dog
+The quick brown fox jumps over the lazy dog
+
+File was modified.
+
+10.
+./myreplace File.txt jumps RAN
+The quick brown fox RANps over the lazy dog
+The quick brown fox RANps over the lazy dog
+The quick brown fox RANps over the lazy dog
+
+File was modified.
 
 --------------------------------------------------------------------------------
 LIMITATIONS
 --------------------------------------------------------------------------------
 
-[Describe any known limitations or cases where your program does not produce
-the expected result.]
+The program can handle everything except the multi-char string replacement.
+
+I would need to shift the bytes when 'from' and 'to' are of different lengths. The buffer would
+need to be truncated if 'to' < 'from' and the 'buffer' would need to be expanded if 'to' > 'from'.
+When reading through the file two different points of the original buffer would need to be 
+maintained, as the current point of writing would start to differ once changes are made.
+
+The entire file could also be read into memory, the amount of changes to the filesize could be
+tracked, then a new buffer of that new size could be written to, before writing the whole buffer
+back to the new file.
+
 
 ================================================================================
